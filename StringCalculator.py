@@ -8,6 +8,7 @@ def add(numbers: str) -> int:
         delimiter = ','
     
     num_list = split_numbers(numbers, delimiter)
+    validate_numbers(num_list)
     return sum_numbers(num_list)
 
 
@@ -23,28 +24,19 @@ def parse_custom_delimiter(numbers: str) -> tuple:
 
 def split_numbers(numbers: str, delimiter: str) -> list:
     if len(delimiter) > 1:
-        numbers = re.split(re.escape(delimiter), numbers)
+        return re.split(re.escape(delimiter), numbers)
     else:
-        numbers = numbers.replace('\n', delimiter).split(delimiter)
-    return numbers
+        return numbers.replace('\n', delimiter).split(delimiter)
+
+
+def validate_numbers(num_list: list) -> None:
+    negatives = [int(num) for num in num_list if parse_number(num) is not None and int(num) < 0]
+    if negatives:
+        raise ValueError(f"negatives not allowed: {', '.join(map(str, negatives))}")
 
 
 def sum_numbers(num_list: list) -> int:
-    valid_numbers = []
-    negatives = []
-    
-    for num in num_list:
-        number = parse_number(num)
-        if number is not None:
-            if number < 0:
-                negatives.append(number)
-            elif number <= 1000:
-                valid_numbers.append(number)
-    
-    if negatives:
-        raise ValueError(f"negatives not allowed: {', '.join(map(str, negatives))}")
-    
-    return sum(valid_numbers)
+    return sum(parse_number(num) for num in num_list if parse_number(num) is not None and int(num) <= 1000)
 
 
 def parse_number(num: str) -> int:
